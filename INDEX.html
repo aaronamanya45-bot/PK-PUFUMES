@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PK Perfumes · Kampala Uganda</title>
+    <!-- Google Fonts for elegant, professional typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet" />
+    <!-- Font Awesome 6 for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <!-- Leaflet CSS for live map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <style>
+        /* ---------- GLOBAL RESET & VARIABLES ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #0b0b0b;
+            --bg-card: #161616;
+            --gold: #c9a96e;
+            --gold-light: #e0cba8;
+            --text-light: #f5f0ea;
+            --text-muted: #a9a29a;
+            --border-subtle: #2a2a2a;
+            --shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.6);
+            --radius: 16px;
+            --font-serif: 'Playfair Display', serif;
+            --font-sans: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            font-family: var(--font-sans);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        #root {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ---------- APP LAYOUT ---------- */
+        .app {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 2.5rem;
+            background: rgba(11, 11, 11, 0.85);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .logo {
+            font-family: var(--font-serif);
+            font-size: 1.8rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .logo i {
+            font-size: 1.4rem;
+            color: var(--gold);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.2rem;
+            list-style: none;
+        }
+
+        .nav-links button {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-family: var(--font-sans);
+            font-size: 0.95rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            padding: 0.3rem 0;
+            border-bottom: 2px solid transparent;
+            transition: all 0.25s ease;
+        }
+
+        .nav-links button:hover,
+        .nav-links button.active {
+            color: var(--gold);
+            border-bottom-color: var(--gold);
+        }
+
+        /* Main content */
+        .main-content {
+            flex: 1;
+            padding: 2.5rem 2rem;
+            max-width: 1300px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Page transitions */
+        .page {
+            animation: fadeUp 0.4s ease forwards;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ---------- HOME PAGE (PK lady) ---------- */
+        .hero {
+            display: flex;
+            align-items: center;
+            gap: 4rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .hero-image {
+            flex: 1 1 360px;
+            max-width: 480px;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-subtle);
+            background: var(--bg-card);
+            transition: transform 0.4s ease;
+        }
+
+        .hero-image:hover {
+            transform: scale(1.01);
+        }
+
+        .hero-image img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+            aspect-ratio: 3/4;
+            filter: brightness(0.95) contrast(1.05);
+        }
+
+        .hero-text {
+            flex: 1 1 380px;
+            max-width: 540px;
+        }
+
+        .hero-text .tagline {
+            font-size: 0.9rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--gold);
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .hero-text h1 {
+            font-family: var(--font-serif);
+            font-size: 3.5rem;
+            font-weight: 600;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+
+        .hero-text h1 span {
+            color: var(--gold);
+            font-style: italic;
+        }
+
+        .hero-text p {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            max-width: 480px;
+        }
+
+        .location-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: rgba(201, 169, 110, 0.12);
+            border: 1px solid rgba(201, 169, 110, 0.3);
+            padding: 0.6rem 1.4rem;
+            border-radius: 40px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--gold-light);
+        }
+
+        .location-badge i {
+            color: var(--gold);
+        }
+
+        /* ---------- PERFUMES PAGE ---------- */
+        .perfumes-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .perfumes-header h2 {
+            font-family: var(--font-serif);
+            font-size: 2.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .perfumes-header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .perfume-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 2rem;
+        }
+
+        .perfume-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border-subtle);
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        .perfume-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(201, 169, 110, 0.4);
+            box-shadow: 0 25px 35px -14px rgba(0, 0, 0, 0.7);
+        }
+
+        .perfume-card img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            display: block;
+            background: #1f1f1f;
+        }
+
+        .perfume-info {
+            padding: 1.4rem 1.5rem 1.6rem;
+        }
+
+        .perfume-info h3 {
+            font-family: var(--font-serif);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            color: var(--gold-light);
+        }
+
+        .perfume-info p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 0.8rem;
+        }
+
+        .perfume-notes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.6rem;
+        }
+
+        .perfume-notes span {
+            background: rgba(201, 169, 110, 0.1);
+            border: 1px solid rgba(201, 169, 110, 0.2);
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--gold-light);
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        /* ---------- CONTACT PAGE / MAP ---------- */
+        .contact-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3rem;
+            justify-content: center;
+        }
+
+        .contact-info {
+            flex: 1 1 300px;
+            max-width: 400px;
+        }
+
+        .contact-info h2 {
+            font-family: var(--font-serif);
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .contact-info h2 span {
+            color: var(--gold);
+        }
+
+        .contact-detail {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1.8rem;
+        }
+
+        .contact-detail i {
+            font-size: 1.4rem;
+            color: var(--gold);
+            width: 2rem;
+            text-align: center;
+            margin-top: 0.2rem;
+        }
+
+        .contact-detail div strong {
+            display: block;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--gold-light);
+            margin-bottom: 0.15rem;
+        }
+
+        .contact-detail div p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .map-wrapper {
+            flex: 2 1 500px;
+            min-height: 450px;
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border-subtle);
+            box-shadow: var(--shadow);
+            background: var(--bg-card);
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+            min-height: 450px;
+            background: #1a1a1a;
+        }
+
+        /* ---------- FOOTER ---------- */
+        .footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            border-top: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 3rem;
+        }
+
+        .footer i {
+            color: var(--gold);
+        }
+
+        /* ---------- RESPONSIVE ---------- */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 1rem 1.5rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-links {
+                gap: 1.5rem;
+            }
+
+            .hero-text h1 {
+                font-size: 2.6rem;
+            }
+
+            .main-content {
+                padding: 2rem 1.2rem;
+            }
+
+            .hero {
+                gap: 2.5rem;
+            }
+
+            .perfumes-header h2 {
+                font-size: 2.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-links button {
+                font-size: 0.8rem;
+            }
+
+            .logo {
+                font-size: 1.5rem;
+            }
+
+            .hero-text h1 {
+                font-size: 2.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <!-- React & ReactDOM CDN -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // ----- IMAGE URLS (high quality, professional) -----
+        const PK_LADY_IMAGE = "pk.png";
+        // (Elegant woman, suitable as "PK" - professional perfume brand owner)
+
+        const PERFUME_IMAGES = [
+            "https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=1000&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=1000&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1587017539504-67cfbddac569?q=80&w=1000&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1615634260167-c8cdede054de?q=80&w=1000&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?q=80&w=1000&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1608528577891-eb055944f2e7?q=80&w=1000&auto=format&fit=crop"
+        ];
+
+        // ----- COMPONENTS -----
+
+        // Navigation Bar
+        function Navbar({ activePage, setActivePage }) {
+            const links = [
+                { id: 'home', label: 'Home' },
+                { id: 'perfumes', label: 'Perfumes' },
+                { id: 'contact', label: 'Contact' }
+            ];
+            return (
+                <nav className="navbar">
+                    <div className="logo">
+                        <i className="fas fa-spray-can-sparkles"></i> PK Perfumes
+                    </div>
+                    <ul className="nav-links">
+                        {links.map(link => (
+                            <li key={link.id}>
+                                <button
+                                    className={activePage === link.id ? 'active' : ''}
+                                    onClick={() => setActivePage(link.id)}
+                                >
+                                    {link.label}
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                </nav>
+            );
+        }
+
+        // Home Page (Lady PK)
+        function HomePage() {
+            return (
+                <section className="page hero">
+                    <div className="hero-image">
+                        <img 
+                            src={PK_LADY_IMAGE} 
+                            alt="PK - Founder of PK Perfumes" 
+                        />
+                    </div>
+                    <div className="hero-text">
+                        <div className="tagline">The essence of elegance</div>
+                        <h1>
+                            Meet <span>PK</span>,<br />
+                            the soul behind every scent.
+                        </h1>
+                        <p>
+                            With a passion for fine fragrances and a deep connection to 
+                            Kampala's vibrant spirit, PK curates perfumes that tell a story — 
+                            your story. Each bottle is a journey of sophistication and warmth.
+                        </p>
+                        <div className="location-badge">
+                            <i className="fas fa-map-pin"></i>
+                            Kampala, Uganda
+                        </div>
+                    </div>
+                </section>
+            );
+        }
+
+        // Perfume data
+        const perfumes = [
+            {
+                id: 1,
+                name: "Kampala Bloom",
+                description: "A floral tribute to the city's vibrant gardens.",
+                notes: ["Jasmine", "Rose", "Vanilla"],
+                image: PERFUME_IMAGES[0]
+            },
+            {
+                id: 2,
+                name: "Nile Mist",
+                description: "Fresh aquatic notes inspired by the river's journey.",
+                notes: ["Bergamot", "Lotus", "Musk"],
+                image: PERFUME_IMAGES[1]
+            },
+            {
+                id: 3,
+                name: "Equator Gold",
+                description: "Warm amber and spice, like the African sun.",
+                notes: ["Amber", "Cinnamon", "Sandalwood"],
+                image: PERFUME_IMAGES[2]
+            },
+            {
+                id: 4,
+                name: "Pearl of Africa",
+                description: "Elegant white florals with a soft powdery finish.",
+                notes: ["Gardenia", "Iris", "Tonka"],
+                image: PERFUME_IMAGES[3]
+            },
+            {
+                id: 5,
+                name: "Matoke Noir",
+                description: "Rich, dark and irresistible — a modern classic.",
+                notes: ["Oud", "Black Pepper", "Leather"],
+                image: PERFUME_IMAGES[4]
+            },
+            {
+                id: 6,
+                name: "Sunset over Murchison",
+                description: "Citrus and cedar, capturing golden hour magic.",
+                notes: ["Orange Blossom", "Cedar", "Vetiver"],
+                image: PERFUME_IMAGES[5]
+            }
+        ];
+
+        function PerfumesPage() {
+            return (
+                <section className="page">
+                    <div className="perfumes-header">
+                        <h2>PK's Signature Scents</h2>
+                        <p>Handpicked by PK herself — each fragrance is a celebration of Ugandan beauty and global artistry.</p>
+                    </div>
+                    <div className="perfume-grid">
+                        {perfumes.map(perfume => (
+                            <div className="perfume-card" key={perfume.id}>
+                                <img src={perfume.image} alt={perfume.name} />
+                                <div className="perfume-info">
+                                    <h3>{perfume.name}</h3>
+                                    <p>{perfume.description}</p>
+                                    <div className="perfume-notes">
+                                        {perfume.notes.map((note, idx) => (
+                                            <span key={idx}>{note}</span>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            );
+        }
+
+        // Contact Page with Live Map
+        function ContactPage() {
+            const mapRef = useRef(null);
+            const mapInstanceRef = useRef(null);
+
+            useEffect(() => {
+                // Initialize map only once
+                if (!mapInstanceRef.current && mapRef.current) {
+                    // Kampala coordinates
+                    const kampalaCoords = [0.3476, 32.5825];
+                    
+                    const map = L.map(mapRef.current, {
+                        center: kampalaCoords,
+                        zoom: 13,
+                        scrollWheelZoom: false,
+                        zoomControl: true,
+                        attributionControl: true
+                    });
+
+                    // Add beautiful dark tile layer (CartoDB Dark Matter)
+                    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                        subdomains: 'abcd',
+                        maxZoom: 19,
+                        minZoom: 3
+                    }).addTo(map);
+
+                    // Add a custom gold marker
+                    const goldIcon = L.divIcon({
+                        className: 'custom-gold-marker',
+                        html: `<div style="background-color: #c9a96e; width: 18px; height: 18px; border-radius: 50%; border: 3px solid #0b0b0b; box-shadow: 0 0 0 3px #c9a96e;"></div>`,
+                        iconSize: [18, 18],
+                        iconAnchor: [9, 9],
+                        popupAnchor: [0, -12]
+                    });
+
+                    L.marker(kampalaCoords, { icon: goldIcon })
+                        .addTo(map)
+                        .bindPopup('<b>PK Perfumes</b><br />Kampala, Uganda')
+                        .openPopup();
+
+                    // Add a subtle circle for emphasis
+                    L.circle(kampalaCoords, {
+                        color: '#c9a96e',
+                        fillColor: '#c9a96e',
+                        fillOpacity: 0.08,
+                        radius: 1200,
+                        weight: 1,
+                        dashArray: '6, 6'
+                    }).addTo(map);
+
+                    mapInstanceRef.current = map;
+                }
+
+                // Cleanup on unmount
+                return () => {
+                    if (mapInstanceRef.current) {
+                        mapInstanceRef.current.remove();
+                        mapInstanceRef.current = null;
+                    }
+                };
+            }, []);
+
+            return (
+                <section className="page">
+                    <div className="contact-container">
+                        <div className="contact-info">
+                            <h2>Visit <span>PK</span> in Kampala</h2>
+                            
+                            <div className="contact-detail">
+                                <i className="fas fa-map-pin"></i>
+                                <div>
+                                    <strong>Location</strong>
+                                    <p>Kampala, Uganda<br />Plot 14, Kampala Road</p>
+                                </div>
+                            </div>
+
+                            <div className="contact-detail">
+                                <i className="fas fa-clock"></i>
+                                <div>
+                                    <strong>Hours</strong>
+                                    <p>Mon – Sat: 9:00 AM – 7:00 PM<br />Sunday: 11:00 AM – 5:00 PM</p>
+                                </div>
+                            </div>
+
+                            <div className="contact-detail">
+                                <i className="fas fa-phone-alt"></i>
+                                <div>
+                                    <strong>Phone</strong>
+                                    <p>+256 700 123 456</p>
+                                </div>
+                            </div>
+
+                            <div className="contact-detail">
+                                <i className="fas fa-envelope"></i>
+                                <div>
+                                    <strong>Email</strong>
+                                    <p>hello@pkperfumes.ug</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="map-wrapper">
+                            <div id="map" ref={mapRef}></div>
+                        </div>
+                    </div>
+                </section>
+            );
+        }
+
+        // Main App
+        function App() {
+            const [activePage, setActivePage] = useState('home');
+
+            const renderPage = () => {
+                switch (activePage) {
+                    case 'home':
+                        return <HomePage />;
+                    case 'perfumes':
+                        return <PerfumesPage />;
+                    case 'contact':
+                        return <ContactPage />;
+                    default:
+                        return <HomePage />;
+                }
+            };
+
+            return (
+                <div className="app">
+                    <Navbar activePage={activePage} setActivePage={setActivePage} />
+                    <main className="main-content">
+                        {renderPage()}
+                    </main>
+                    <footer className="footer">
+                        <p>© {new Date().getFullYear()} PK Perfumes · Kampala, Uganda · <i className="fas fa-heart"></i> Crafted with passion</p>
+                    </footer>
+                </div>
+            );
+        }
+
+        // Render the App
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
